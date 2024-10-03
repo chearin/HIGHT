@@ -225,6 +225,20 @@
 .type Encryption_2block, @function
 # void Encryption_2block(uint32_t* CT1, uint32_t* CT2, const uint32_t* WK, const uint32_t* SK, const uint32_t* PT1, const uint32_t* PT2)
 Encryption_2block:
+    addi sp, sp, -48
+    sw s0, 0(sp)
+    sw s1, 4(sp)
+    sw s2, 8(sp)
+    sw s3, 12(sp)
+    sw s4, 16(sp)
+    sw s5, 20(sp)
+    sw s6, 24(sp)
+    sw s7, 28(sp)
+    sw s8, 32(sp)
+    sw s9, 36(sp)
+    sw s10, 40(sp)
+    sw s11, 44(sp)
+
     # packing (00000000|PT2|00000000|PT1)
     # PT: s0-s7, PT2: t3
     # PT[0]
@@ -352,5 +366,19 @@ end:
     srli s7, s7, 4
     and t3, s7, t2
     sw t3, 28(a1)
+
+    lw s0, 0(sp)
+    lw s1, 4(sp)
+    lw s2, 8(sp)
+    lw s3, 12(sp)
+    lw s4, 16(sp)
+    lw s5, 20(sp)
+    lw s6, 24(sp)
+    lw s7, 28(sp)
+    lw s8, 32(sp)
+    lw s9, 36(sp)
+    lw s10, 40(sp)
+    lw s11, 44(sp)
+    addi sp, sp, 48
 
     ret

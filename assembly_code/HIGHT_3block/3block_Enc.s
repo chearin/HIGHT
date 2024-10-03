@@ -259,14 +259,6 @@ Encryption_3block:
     sw s10, 40(sp)
     sw s11, 44(sp)
 
-    addi sp, sp, -24
-    sw t0, 0(sp)
-    sw t1, 4(sp)
-    sw t2, 8(sp)
-    sw t3, 12(sp)
-    sw t4, 16(sp)
-    sw t5, 20(sp)
-
     # packing (PT3|0000|PT2|0000|PT1)
     # PT: s0-s7, PT2: t3, PT3: t4
     # PT[0]
@@ -418,15 +410,6 @@ round_end:
     sw t3, 28(a1)
     srli s7, s7, 12
     sw s7, 28(a2)
-
-
-    lw t0, 0(sp)
-    lw t1, 4(sp)
-    lw t2, 8(sp)
-    lw t3, 12(sp)
-    lw t4, 16(sp)
-    lw t5, 20(sp)
-    addi sp, sp, 24
 
     lw s0, 0(sp)
     lw s1, 4(sp)
