@@ -41,9 +41,9 @@ void Test_2block()
 	uint32_t SK[128] = { 0, };
 
 	uint32_t PT1[8] = { 0, }; //CT: f2 03 4f d9 ae 18 f4 00
-	//uint32_t PT2[8] = { 0, };
+	uint32_t PT2[8] = { 0, };
 	//uint32_t PT2[8] = { 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00 }; //CT: F0 DF 54 F0 64 E6 DB 63
-	uint32_t PT2[8] = { 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01 }; //CT: 84 26 A2 27 93 29 AA 73
+	//uint32_t PT2[8] = { 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01 }; //CT: 84 26 A2 27 93 29 AA 73
 	//uint32_t PT2[8] = { 0x14, 0x4a, 0xa8, 0xeb, 0xe2, 0x6b, 0x1e, 0xb4 }; //CT: 3C 04 2B CC 9A 84 7C 5B
 
 	uint32_t CT1[8] = { 0, };
@@ -130,7 +130,7 @@ void Test_3block()
 
 int main()
 {
-	Test_2block();
+	//Test_2block();
 	Test_3block();
 
 	return 0;

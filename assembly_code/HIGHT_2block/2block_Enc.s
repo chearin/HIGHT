@@ -126,7 +126,7 @@
 
 # void EncRound(uint32_t* AX, const uint32_t* SK, const uint32_t* BX)
 .macro EncRound, SK
-    # uint32_t temp2[4] = { BX[1], BX[3], BX[5], BX[7] }; //AX, BX가 같은 주소일 때를 대비
+    # uint32_t temp2[4] = { BX[1], BX[3], BX[5], BX[7] };
     mv s8, s1
     mv s9, s3
     mv s10, s5
@@ -137,7 +137,7 @@
     mv s3, s2
     # AX[5] = BX[4];
     mv s5, s4
-    # AX[7] = BX[6];
+    # AX[7] = BX[6];    
     mv s7, s6
     # F0_2block(temp, BX[6]);
     F0_2block s6
@@ -240,54 +240,46 @@ Encryption_2block:
     sw s11, 44(sp)
 
     # packing (00000000|PT2|00000000|PT1)
-    # PT: s0-s7, PT2: t3
+    # PT: s0-s7, temp: t3, PT1: a4, PT2: a5
     # PT[0]
     lw s0, 0(a4)
     lw t3, 0(a5)
-    slli t3, t3, 12
-    slli t3, t3, 4
+    slli t3, t3, 16
     add s0, t3, s0
     # PT[1]
     lw s1, 4(a4)
     lw t3, 4(a5)
-    slli t3, t3, 12
-    slli t3, t3, 4
+    slli t3, t3, 16
     add s1, t3, s1
     # PT[2]
     lw s2, 8(a4)
     lw t3, 8(a5)
-    slli t3, t3, 12
-    slli t3, t3, 4
+    slli t3, t3, 16
     add s2, t3, s2
     # PT[3]
     lw s3, 12(a4)
     lw t3, 12(a5)
-    slli t3, t3, 12
-    slli t3, t3, 4
+    slli t3, t3, 16
     add s3, t3, s3
     # PT[4]
     lw s4, 16(a4)
     lw t3, 16(a5)
-    slli t3, t3, 12
-    slli t3, t3, 4
+    slli t3, t3, 16
     add s4, t3, s4
     # PT[5]
     lw s5, 20(a4)
     lw t3, 20(a5)
-    slli t3, t3, 12
-    slli t3, t3, 4
+    slli t3, t3, 16
     add s5, t3, s5
     # PT[6]
     lw s6, 24(a4)
     lw t3, 24(a5)
-    slli t3, t3, 12
-    slli t3, t3, 4
+    slli t3, t3, 16
     add s6, t3, s6
     # PT[7]
     lw s7, 28(a4)
     lw t3, 28(a5)
-    slli t3, t3, 12
-    slli t3, t3, 4
+    slli t3, t3, 16
     add s7, t3, s7
 
     # initial
@@ -295,13 +287,13 @@ Encryption_2block:
     # 1-31round
     li t0, 1
     li t1, 32
-loop:
-    beq t0, t1, end
+ROUND_LOOP:
+    beq t0, t1, ROUND_END
     EncRound a3
     addi t0, t0, 1
     addi a3, a3, 16
-    j loop
-end:
+    j ROUND_LOOP
+ROUND_END:
     # 32round
     EncRound2 a3
     # final
@@ -313,57 +305,49 @@ end:
     # CT[0]
     and t3, s0, t2
     sw t3, 0(a0)
-    srli s0, s0, 12
-    srli s0, s0, 4
+    srli s0, s0, 16
     and t3, s0, t2
     sw t3, 0(a1)
     # CT[1]
     and t3, s1, t2
     sw t3, 4(a0)
-    srli s1, s1, 12
-    srli s1, s1, 4
+    srli s1, s1, 16
     and t3, s1, t2
     sw t3, 4(a1)
     # CT[2]
     and t3, s2, t2
     sw t3, 8(a0)
-    srli s2, s2, 12
-    srli s2, s2, 4
+    srli s2, s2, 16
     and t3, s2, t2
     sw t3, 8(a1)
     # CT[3]
     and t3, s3, t2
     sw t3, 12(a0)
-    srli s3, s3, 12
-    srli s3, s3, 4
+    srli s3, s3, 16
     and t3, s3, t2
     sw t3, 12(a1)
     # CT[4]
     and t3, s4, t2
     sw t3, 16(a0)
-    srli s4, s4, 12
-    srli s4, s4, 4
+    srli s4, s4, 16
     and t3, s4, t2
     sw t3, 16(a1)
     # CT[5]
     and t3, s5, t2
     sw t3, 20(a0)
-    srli s5, s5, 12
-    srli s5, s5, 4
+    srli s5, s5, 16
     and t3, s5, t2
     sw t3, 20(a1)
     # CT[6]
     and t3, s6, t2
     sw t3, 24(a0)
-    srli s6, s6, 12
-    srli s6, s6, 4
+    srli s6, s6, 16
     and t3, s6, t2
     sw t3, 24(a1)
     # CT[7]
     and t3, s7, t2
     sw t3, 28(a0)
-    srli s7, s7, 12
-    srli s7, s7, 4
+    srli s7, s7, 16
     and t3, s7, t2
     sw t3, 28(a1)
 

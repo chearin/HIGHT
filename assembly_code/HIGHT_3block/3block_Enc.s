@@ -146,7 +146,7 @@
 
 # void EncRound(uint32_t* AX, const uint32_t* SK, const uint32_t* BX)
 .macro EncRound, SK
-    # uint32_t temp2[4] = { BX[1], BX[3], BX[5], BX[7] }; //AX, BX가 같은 주소일 때를 대비
+    # uint32_t temp2[4] = { BX[1], BX[3], BX[5], BX[7] };
     mv s8, s1
     mv s9, s3
     mv s10, s5
@@ -260,7 +260,7 @@ Encryption_3block:
     sw s11, 44(sp)
 
     # packing (PT3|0000|PT2|0000|PT1)
-    # PT: s0-s7, PT2: t3, PT3: t4
+    # PT: s0-s7, temp: t3 t4, PT1: a5, PT2: a6, PT3: a7
     # PT[0]
     lw s0, 0(a5)
     lw t3, 0(a6)
@@ -331,13 +331,13 @@ Encryption_3block:
     # 1-31round
     li t0, 1
     li t1, 32
-round_loop:
-    beq t0, t1, round_end
+ROUND_LOOP:
+    beq t0, t1, ROUND_END
     EncRound a4
     addi t0, t0, 1
     addi a4, a4, 16
-    j round_loop
-round_end:
+    j ROUND_LOOP
+ROUND_END:
     # 32round
     EncRound2 a4
     # final

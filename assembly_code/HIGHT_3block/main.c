@@ -86,8 +86,6 @@ void printETC(uint32_t* MK, uint32_t* PT1, uint32_t* PT2, uint32_t* PT3, uint32_
 
 int main()
 {
-	printf("Hello world!\r\n");
-
 	uint32_t MK[16] = { 0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00 };
 	uint32_t WK[8] = { 0, };
 	uint32_t SK[128] = { 0, };
@@ -123,11 +121,3 @@ int main()
 
 	return 0;
 }
-
-/*
-	RISC-V에서 (지금 사용하는 보드 기준)
-	ld-ld-ld (연산) st-st-st
-	ld 연산 st ld 연산 st ld 연산 st
-
-	둘 중 뭐가 빠를까 + 이유까지
-*/
