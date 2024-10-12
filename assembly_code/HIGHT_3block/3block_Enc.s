@@ -168,23 +168,23 @@
     # F1_3block(temp + 3, BX[4]);
     F1_3block s4
     # AX[0] = temp2[3] ^ (temp[0] + SK[3]);
-    lw t2, 12(\SK)
-    add t2, s6, t2
-    xor t3, s11, t2
+    lw a6, 12(\SK)
+    add a6, s6, a6
+    xor t3, s11, a6
     # AX[2] = temp2[0] + (temp[1] ^ SK[0]);
-    lw t2, 0(\SK)
-    xor t2, s0, t2
-    add t4, s8, t2
+    lw a6, 0(\SK)
+    xor a6, s0, a6
+    add t4, s8, a6
     mv s0, t3
     # AX[4] = temp2[1] ^ (temp[2] + SK[1]);
-    lw t2, 4(\SK)
-    add t2, s2, t2
-    xor t3, s9, t2
+    lw a6, 4(\SK)
+    add a6, s2, a6
+    xor t3, s9, a6
     mv s2, t4
     # AX[6] = temp2[2] + (temp[3] ^ SK[2]);
-    lw t2, 8(\SK)
-    xor t2, s4, t2
-    add s6, s10, t2
+    lw a6, 8(\SK)
+    xor a6, s4, a6
+    add s6, s10, a6
     mv s4, t3
     # bit masking
     li t5, 0xff0ff0ff
@@ -209,21 +209,21 @@
     # F0_3block(temp + 3, BX[6]);
     F0_3block s6
     # AX[1] = BX[1] + (temp[0] ^ SK[0]);
-    lw t2, 0(\SK)
-    xor t2, s0, t2
-    add s1, s1, t2
+    lw a6, 0(\SK)
+    xor a6, s0, a6
+    add s1, s1, a6
     # AX[3] = BX[3] ^ (temp[1] + SK[1]);
-    lw t2, 4(\SK)
-    add t2, s2, t2
-    xor s3, s3, t2
+    lw a6, 4(\SK)
+    add a6, s2, a6
+    xor s3, s3, a6
     # AX[5] = BX[5] + (temp[2] ^ SK[2]);
-    lw t2, 8(\SK)
-    xor t2, s4, t2
-    add s5, s5, t2
+    lw a6, 8(\SK)
+    xor a6, s4, a6
+    add s5, s5, a6
     # AX[7] = BX[7] ^ (temp[3] + SK[3]);
-    lw t2, 12(\SK)
-    add t2, s6, t2
-    xor s7, s7, t2
+    lw a6, 12(\SK)
+    add a6, s6, a6
+    xor s7, s7, a6
     # AX[0] = BX[0];
     # AX[2] = BX[2];
     # AX[4] = BX[4];
