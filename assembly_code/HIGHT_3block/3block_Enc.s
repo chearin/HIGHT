@@ -13,9 +13,9 @@
     lw t0, 12(\WK)
     xor s6, s6, t0
     # bit masking
-    li t1, 0xff0ff0ff
-    and s0, s0, t1
-    and s4, s4, t1
+    li t2, 0xff0ff0ff
+    and s0, s0, t2
+    and s4, s4, t2
 .endm
 
 # void finalTran(uint32_t* CT, const uint32_t* WK, const uint32_t* X)
@@ -36,7 +36,6 @@
 
 # void F0_3block(uint32_t* AX, const uint32_t BX)
 .macro F0_3block, X
-    li t2, 0xff0ff0ff
     # X<<<1
     # temp1[0] = BX << 1;
     mv t3, \X
@@ -93,7 +92,6 @@
 
 # void F1_3block(uint32_t* AX, const uint32_t BX)
 .macro F1_3block, X
-    li t2, 0xff0ff0ff
     # X<<<3
     # temp1[0] = BX << 3;
     mv t3, \X
@@ -187,11 +185,10 @@
     add s6, s10, a6
     mv s4, t3
     # bit masking
-    li t5, 0xff0ff0ff
-    and s0, s0, t5
-    and s2, s2, t5
-    and s4, s4, t5
-    and s6, s6, t5
+    and s0, s0, t2
+    and s2, s2, t2
+    and s4, s4, t2
+    and s6, s6, t2
 .endm
 
 # void EncRound2(uint32_t* AX, const uint32_t* SK, const uint32_t* BX)
@@ -233,11 +230,10 @@
     mv s4, s10
     mv s6, s11
     # bit masking
-    li t5, 0xff0ff0ff
-    and s1, s1, t5
-    and s3, s3, t5
-    and s5, s5, t5
-    and s7, s7, t5
+    and s1, s1, t2
+    and s3, s3, t2
+    and s5, s5, t2
+    and s7, s7, t2
 .endm
 
 .text
