@@ -13,30 +13,29 @@
     lw t0, 12(\WK)
     xor s6, s6, t0
     # bit masking
-    li t1, 0xff0ff0ff
-    and s0, s0, t1
-    and s4, s4, t1
+    li t2, 0xff0ff0ff
+    and s0, s0, t2
+    and s4, s4, t2
 .endm
 
 # void finalTran(uint32_t* CT, const uint32_t* WK, const uint32_t* X)
 .macro finalTran, WK
     # CT[0] = X[0] + WK[4];
     lw t0, 16(\WK)
-    add s0, s0, t0
+    add s1, s1, t0
     # CT[2] = X[2] ^ WK[5];
     lw t0, 20(\WK)
-    xor s2, s2, t0
+    xor s3, s3, t0
     # CT[4] = X[4] + WK[6];
     lw t0, 24(\WK)
-    add s4, s4, t0
+    add s5, s5, t0
     # CT[6] = X[6] ^ WK[7];
     lw t0, 28(\WK)
-    xor s6, s6, t0
+    xor s7, s7, t0
 .endm
 
 # void F0_3block(uint32_t* AX, const uint32_t BX)
-.macro F0_3block, X
-    li t2, 0xff0ff0ff
+.macro F0_3block, R, X
     # X<<<1
     # temp1[0] = BX << 1;
     mv t3, \X
@@ -88,12 +87,11 @@
     # *AX = temp1[0] ^ temp1[1] ^ temp1[2];
     xor t3, t3, t4
     xor t3, t3, t5
-    mv \X, t3
+    mv \R, t3
 .endm
 
 # void F1_3block(uint32_t* AX, const uint32_t BX)
-.macro F1_3block, X
-    li t2, 0xff0ff0ff
+.macro F1_3block, R, X
     # X<<<3
     # temp1[0] = BX << 3;
     mv t3, \X
@@ -141,103 +139,258 @@
     # *AX = temp1[0] ^ temp1[1] ^ temp1[2];
     xor t3, t3, t4
     xor t3, t3, t5
-    mv \X, t3
+    mv \R, t3
 .endm
 
 # void EncRound(uint32_t* AX, const uint32_t* SK, const uint32_t* BX)
 .macro EncRound, SK
-    # uint32_t temp2[4] = { BX[1], BX[3], BX[5], BX[7] };
-    mv s8, s1
-    mv s9, s3
-    mv s10, s5
-    mv s11, s7
-    # AX[1] = BX[0];
-    mv s1, s0
-    # AX[3] = BX[2];
-    mv s3, s2
-    # AX[5] = BX[4];
-    mv s5, s4
-    # AX[7] = BX[6];
-    mv s7, s6
+    # 1R
     # F0_3block(temp, BX[6]);
-    F0_3block s6
-    # F1_3block(temp + 1, BX[0]);
-    F1_3block s0
-    # F0_3block(temp + 2, BX[2]);
-    F0_3block s2
-    # F1_3block(temp + 3, BX[4]);
-    F1_3block s4
-    # AX[0] = temp2[3] ^ (temp[0] + SK[3]);
+    F0_3block s8, s6
+    # AX[0] = temp2[3] ^ (temp + SK[3]);
     lw a6, 12(\SK)
-    add a6, s6, a6
-    xor t3, s11, a6
-    # AX[2] = temp2[0] + (temp[1] ^ SK[0]);
-    lw a6, 0(\SK)
-    xor a6, s0, a6
-    add t4, s8, a6
-    mv s0, t3
-    # AX[4] = temp2[1] ^ (temp[2] + SK[1]);
-    lw a6, 4(\SK)
-    add a6, s2, a6
-    xor t3, s9, a6
-    mv s2, t4
-    # AX[6] = temp2[2] + (temp[3] ^ SK[2]);
-    lw a6, 8(\SK)
-    xor a6, s4, a6
-    add s6, s10, a6
-    mv s4, t3
-    # bit masking
-    li t5, 0xff0ff0ff
-    and s0, s0, t5
-    and s2, s2, t5
-    and s4, s4, t5
-    and s6, s6, t5
-.endm
-
-# void EncRound2(uint32_t* AX, const uint32_t* SK, const uint32_t* BX)
-.macro EncRound2 SK
-    mv s8, s0
-    mv s9, s2
-    mv s10, s4
-    mv s11, s6
-    # F1_3block(temp, BX[0]);
-    F1_3block s0
-    # F0_3block(temp + 1, BX[2]);
-    F0_3block s2
-    # F1_3block(temp + 2, BX[4]);
-    F1_3block s4
-    # F0_3block(temp + 3, BX[6]);
-    F0_3block s6
-    # AX[1] = BX[1] + (temp[0] ^ SK[0]);
-    lw a6, 0(\SK)
-    xor a6, s0, a6
-    add s1, s1, a6
-    # AX[3] = BX[3] ^ (temp[1] + SK[1]);
-    lw a6, 4(\SK)
-    add a6, s2, a6
-    xor s3, s3, a6
-    # AX[5] = BX[5] + (temp[2] ^ SK[2]);
-    lw a6, 8(\SK)
-    xor a6, s4, a6
-    add s5, s5, a6
-    # AX[7] = BX[7] ^ (temp[3] + SK[3]);
-    lw a6, 12(\SK)
-    add a6, s6, a6
+    add a6, s8, a6
     xor s7, s7, a6
-    # AX[0] = BX[0];
-    # AX[2] = BX[2];
-    # AX[4] = BX[4];
-    # AX[6] = BX[6];
-    mv s0, s8
-    mv s2, s9
-    mv s4, s10
-    mv s6, s11
+    # F1_3block(temp, BX[0]);
+    F1_3block s8, s0
+    # AX[2] = temp2[0] + (temp ^ SK[0]);
+    lw a6, 0(\SK)
+    xor a6, s8, a6
+    add s1, s1, a6
+    # F0_3block(temp, BX[2]);
+    F0_3block s8, s2
+    # AX[4] = temp2[1] ^ (temp + SK[1]);
+    lw a6, 4(\SK)
+    add a6, s8, a6
+    xor s3, s3, a6
+    # F1_3block(temp, BX[4]);
+    F1_3block s8, s4
+    # AX[6] = temp2[2] + (temp ^ SK[2]);
+    lw a6, 8(\SK)
+    xor a6, s8, a6
+    add s5, s5, a6
     # bit masking
-    li t5, 0xff0ff0ff
-    and s1, s1, t5
-    and s3, s3, t5
-    and s5, s5, t5
-    and s7, s7, t5
+    and s1, s1, t2
+    and s3, s3, t2
+    and s5, s5, t2
+    and s7, s7, t2
+
+    # 2R
+    # F0_3block(temp, BX[6]);
+    F0_3block s8, s5
+    # AX[0] = temp2[3] ^ (temp + SK[3]);
+    lw a6, 28(\SK)
+    add a6, s8, a6
+    xor s6, s6, a6
+    # F1_3block(temp, BX[0]);
+    F1_3block s8, s7
+    # AX[2] = temp2[0] + (temp ^ SK[0]);
+    lw a6, 16(\SK)
+    xor a6, s8, a6
+    add s0, s0, a6
+    # F0_3block(temp, BX[2]);
+    F0_3block s8, s1
+    # AX[4] = temp2[1] ^ (temp + SK[1]);
+    lw a6, 20(\SK)
+    add a6, s8, a6
+    xor s2, s2, a6
+    # F1_3block(temp, BX[4]);
+    F1_3block s8, s3
+    # AX[6] = temp2[2] + (temp ^ SK[2]);
+    lw a6, 24(\SK)
+    xor a6, s8, a6
+    add s4, s4, a6
+    # bit masking
+    and s0, s0, t2
+    and s2, s2, t2
+    and s4, s4, t2
+    and s6, s6, t2
+
+    # 3R
+    # F0_3block(temp, BX[6]);
+    F0_3block s8, s4
+    # AX[0] = temp2[3] ^ (temp + SK[3]);
+    lw a6, 44(\SK)
+    add a6, s8, a6
+    xor s5, s5, a6
+    # F1_3block(temp, BX[0]);
+    F1_3block s8, s6
+    # AX[2] = temp2[0] + (temp ^ SK[0]);
+    lw a6, 32(\SK)
+    xor a6, s8, a6
+    add s7, s7, a6
+    # F0_3block(temp, BX[2]);
+    F0_3block s8, s0
+    # AX[4] = temp2[1] ^ (temp + SK[1]);
+    lw a6, 36(\SK)
+    add a6, s8, a6
+    xor s1, s1, a6
+    # F1_3block(temp, BX[4]);
+    F1_3block s8, s2
+    # AX[6] = temp2[2] + (temp ^ SK[2]);
+    lw a6, 40(\SK)
+    xor a6, s8, a6
+    add s3, s3, a6
+    # bit masking
+    and s1, s1, t2
+    and s3, s3, t2
+    and s5, s5, t2
+    and s7, s7, t2
+
+    # 4R
+    # F0_3block(temp, BX[6]);
+    F0_3block s8, s3
+    # AX[0] = temp2[3] ^ (temp + SK[3]);
+    lw a6, 60(\SK)
+    add a6, s8, a6
+    xor s4, s4, a6
+    # F1_3block(temp, BX[0]);
+    F1_3block s8, s5
+    # AX[2] = temp2[0] + (temp ^ SK[0]);
+    lw a6, 48(\SK)
+    xor a6, s8, a6
+    add s6, s6, a6
+    # F0_3block(temp, BX[2]);
+    F0_3block s8, s7
+    # AX[4] = temp2[1] ^ (temp + SK[1]);
+    lw a6, 52(\SK)
+    add a6, s8, a6
+    xor s0, s0, a6
+    # F1_3block(temp, BX[4]);
+    F1_3block s8, s1
+    # AX[6] = temp2[2] + (temp ^ SK[2]);
+    lw a6, 56(\SK)
+    xor a6, s8, a6
+    add s2, s2, a6
+    # bit masking
+    and s0, s0, t2
+    and s2, s2, t2
+    and s4, s4, t2
+    and s6, s6, t2
+
+    # 5R
+    # F0_3block(temp, BX[6]);
+    F0_3block s8, s2
+    # AX[0] = temp2[3] ^ (temp + SK[3]);
+    lw a6, 76(\SK)
+    add a6, s8, a6
+    xor s3, s3, a6
+    # F1_3block(temp, BX[0]);
+    F1_3block s8, s4
+    # AX[2] = temp2[0] + (temp ^ SK[0]);
+    lw a6, 64(\SK)
+    xor a6, s8, a6
+    add s5, s5, a6
+    # F0_3block(temp, BX[2]);
+    F0_3block s8, s6
+    # AX[4] = temp2[1] ^ (temp + SK[1]);
+    lw a6, 68(\SK)
+    add a6, s8, a6
+    xor s7, s7, a6
+    # F1_3block(temp, BX[4]);
+    F1_3block s8, s0
+    # AX[6] = temp2[2] + (temp ^ SK[2]);
+    lw a6, 72(\SK)
+    xor a6, s8, a6
+    add s1, s1, a6
+    # bit masking
+    and s1, s1, t2
+    and s3, s3, t2
+    and s5, s5, t2
+    and s7, s7, t2
+
+    # 6R
+    # F0_3block(temp, BX[6]);
+    F0_3block s8, s1
+    # AX[0] = temp2[3] ^ (temp + SK[3]);
+    lw a6, 92(\SK)
+    add a6, s8, a6
+    xor s2, s2, a6
+    # F1_3block(temp, BX[0]);
+    F1_3block s8, s3
+    # AX[2] = temp2[0] + (temp ^ SK[0]);
+    lw a6, 80(\SK)
+    xor a6, s8, a6
+    add s4, s4, a6
+    # F0_3block(temp, BX[2]);
+    F0_3block s8, s5
+    # AX[4] = temp2[1] ^ (temp + SK[1]);
+    lw a6, 84(\SK)
+    add a6, s8, a6
+    xor s6, s6, a6
+    # F1_3block(temp, BX[4]);
+    F1_3block s8, s7
+    # AX[6] = temp2[2] + (temp ^ SK[2]);
+    lw a6, 88(\SK)
+    xor a6, s8, a6
+    add s0, s0, a6
+    # bit masking
+    and s0, s0, t2
+    and s2, s2, t2
+    and s4, s4, t2
+    and s6, s6, t2
+
+    # 7R
+    # F0_3block(temp, BX[6]);
+    F0_3block s8, s0
+    # AX[0] = temp2[3] ^ (temp + SK[3]);
+    lw a6, 108(\SK)
+    add a6, s8, a6
+    xor s1, s1, a6
+    # F1_3block(temp, BX[0]);
+    F1_3block s8, s2
+    # AX[2] = temp2[0] + (temp ^ SK[0]);
+    lw a6, 96(\SK)
+    xor a6, s8, a6
+    add s3, s3, a6
+    # F0_3block(temp, BX[2]);
+    F0_3block s8, s4
+    # AX[4] = temp2[1] ^ (temp + SK[1]);
+    lw a6, 100(\SK)
+    add a6, s8, a6
+    xor s5, s5, a6
+    # F1_3block(temp, BX[4]);
+    F1_3block s8, s6
+    # AX[6] = temp2[2] + (temp ^ SK[2]);
+    lw a6, 104(\SK)
+    xor a6, s8, a6
+    add s7, s7, a6
+    # bit masking
+    and s1, s1, t2
+    and s3, s3, t2
+    and s5, s5, t2
+    and s7, s7, t2
+
+    # 8R
+    # F0_3block(temp, BX[6]);
+    F0_3block s8, s7
+    # AX[0] = temp2[3] ^ (temp + SK[3]);
+    lw a6, 124(\SK)
+    add a6, s8, a6
+    xor s0, s0, a6
+    # F1_3block(temp, BX[0]);
+    F1_3block s8, s1
+    # AX[2] = temp2[0] + (temp ^ SK[0]);
+    lw a6, 112(\SK)
+    xor a6, s8, a6
+    add s2, s2, a6
+    # F0_3block(temp, BX[2]);
+    F0_3block s8, s3
+    # AX[4] = temp2[1] ^ (temp + SK[1]);
+    lw a6, 116(\SK)
+    add a6, s8, a6
+    xor s4, s4, a6
+    # F1_3block(temp, BX[4]);
+    F1_3block s8, s5
+    # AX[6] = temp2[2] + (temp ^ SK[2]);
+    lw a6, 120(\SK)
+    xor a6, s8, a6
+    add s6, s6, a6
+    # bit masking
+    and s0, s0, t2
+    and s2, s2, t2
+    and s4, s4, t2
+    and s6, s6, t2
 .endm
 
 .text
@@ -328,18 +481,16 @@ Encryption_3block:
 
     # initial
     initialTran a3
-    # 1-31round
-    li t0, 1
-    li t1, 32
+    # 1-32round
+    li t0, 0
+    li t1, 4
 ROUND_LOOP:
     beq t0, t1, ROUND_END
     EncRound a4
     addi t0, t0, 1
-    addi a4, a4, 16
+    addi a4, a4, 128
     j ROUND_LOOP
 ROUND_END:
-    # 32round
-    EncRound2 a4
     # final
     finalTran a3
 
@@ -348,68 +499,68 @@ ROUND_END:
     li t2, 0xff
     # CT[0]
     and t3, s0, t2
-    sw t3, 0(a0)
+    sw t3, 28(a0)
     srli s0, s0, 12
     and t3, s0, t2
-    sw t3, 0(a1)
+    sw t3, 28(a1)
     srli s0, s0, 12
-    sw s0, 0(a2)
+    sw s0, 28(a2)
     # CT[1]
     and t3, s1, t2
-    sw t3, 4(a0)
+    sw t3, 0(a0)
     srli s1, s1, 12
     and t3, s1, t2
-    sw t3, 4(a1)
+    sw t3, 0(a1)
     srli s1, s1, 12
-    sw s1, 4(a2)
+    sw s1, 0(a2)
     # CT[2]
     and t3, s2, t2
-    sw t3, 8(a0)
+    sw t3, 4(a0)
     srli s2, s2, 12
     and t3, s2, t2
-    sw t3, 8(a1)
+    sw t3, 4(a1)
     srli s2, s2, 12
-    sw s2, 8(a2)
+    sw s2, 4(a2)
     # CT[3]
     and t3, s3, t2
-    sw t3, 12(a0)
+    sw t3, 8(a0)
     srli s3, s3, 12
     and t3, s3, t2
-    sw t3, 12(a1)
+    sw t3, 8(a1)
     srli s3, s3, 12
-    sw s3, 12(a2)
+    sw s3, 8(a2)
     # CT[4]
     and t3, s4, t2
-    sw t3, 16(a0)
+    sw t3, 12(a0)
     srli s4, s4, 12
     and t3, s4, t2
-    sw t3, 16(a1)
+    sw t3, 12(a1)
     srli s4, s4, 12
-    sw s4, 16(a2)
+    sw s4, 12(a2)
     # CT[5]
     and t3, s5, t2
-    sw t3, 20(a0)
+    sw t3, 16(a0)
     srli s5, s5, 12
     and t3, s5, t2
-    sw t3, 20(a1)
+    sw t3, 16(a1)
     srli s5, s5, 12
-    sw s5, 20(a2)
+    sw s5, 16(a2)
     # CT[6]
     and t3, s6, t2
-    sw t3, 24(a0)
+    sw t3, 20(a0)
     srli s6, s6, 12
     and t3, s6, t2
-    sw t3, 24(a1)
+    sw t3, 20(a1)
     srli s6, s6, 12
-    sw s6, 24(a2)
+    sw s6, 20(a2)
     # CT[7]
     and t3, s7, t2
-    sw t3, 28(a0)
+    sw t3, 24(a0)
     srli s7, s7, 12
     and t3, s7, t2
-    sw t3, 28(a1)
+    sw t3, 24(a1)
     srli s7, s7, 12
-    sw s7, 28(a2)
+    sw s7, 24(a2)
 
     lw s0, 0(sp)
     lw s1, 4(sp)
