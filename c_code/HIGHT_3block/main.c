@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "encryption.h"
+#include "decryption.h"
 
 void printETC(uint32_t* MK, uint32_t* PT1, uint32_t* PT2, uint32_t* PT3, uint32_t* CT1, uint32_t* CT2, uint32_t* CT3)
 {
@@ -77,6 +78,7 @@ int main()
 	uint32_t MK[16] = { 0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00 };
 	uint32_t WK[8] = { 0, };
 	uint32_t SK[128] = { 0, };
+	uint32_t DSK[128] = { 0, };
 
 	uint32_t PT1[8] = { 0, }; //CT: f2 03 4f d9 ae 18 f4 00
 	//uint32_t PT2[8] = { 0, };
@@ -104,21 +106,15 @@ int main()
 		SK[i] = (SK[i] << 24) + (SK[i] << 12) + SK[i];
 	}
 
-	printf("[SK]\n");
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < 128; i++)
 	{
-		for (int j = 0; j < 16; j++)
-		{
-			printf("%08X ", SK[i * 16 + j]);
-		}
-		printf("\n");
+		DSK[i] = SK[127 - i];
 	}
-	printf("\n");
 
 	Encryption_3block(CT1, CT2, CT3, WK, SK, PT1, PT2, PT3);
 	printETC(MK, PT1, PT2, PT3, CT1, CT2, CT3);
-
-	printDelta();
+	Decryption_3block(PT1, PT2, PT3, WK, DSK, CT1, CT2, CT3);
+	printETC(MK, PT1, PT2, PT3, CT1, CT2, CT3);
 
 	return 0;
 }

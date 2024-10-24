@@ -148,7 +148,7 @@ void F1_3block(uint32_t* AX, const uint32_t BX)
 void EncRound(uint32_t* AX, const uint32_t* SK, const uint32_t* BX)
 {
 	uint32_t temp[4] = { 0, };
-	uint32_t temp2[4] = { BX[1], BX[3], BX[5], BX[7] }; //AX, BX가 같은 주소일 때를 대비
+	uint32_t temp2[4] = { BX[1], BX[3], BX[5], BX[7] };
 
 	AX[1] = BX[0];
 	AX[3] = BX[2];
@@ -158,6 +158,11 @@ void EncRound(uint32_t* AX, const uint32_t* SK, const uint32_t* BX)
 	F1_3block(temp + 1, BX[0]);
 	F0_3block(temp + 2, BX[2]);
 	F1_3block(temp + 3, BX[4]);
+	for (int i = 0; i < 4; i++)
+	{
+		printf("%08X ", temp[i]);
+	}
+	printf("\n");
 	AX[0] = temp2[3] ^ (temp[0] + SK[3]);
 	AX[0] &= 0xff0ff0ff;
 	AX[2] = temp2[0] + (temp[1] ^ SK[0]);
