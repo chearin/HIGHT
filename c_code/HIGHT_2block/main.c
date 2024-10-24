@@ -2,6 +2,8 @@
 #include <stdio.h>
 
 #include "encryption.h"
+#include "decryption.h"
+
 
 void printETC(uint32_t* MK, uint32_t* PT1, uint32_t* PT2, uint32_t* CT1, uint32_t* CT2)
 {
@@ -46,6 +48,7 @@ int main()
 	uint32_t MK[16] = { 0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00 };
 	uint32_t WK[8] = { 0, };
 	uint32_t SK[128] = { 0, };
+	uint32_t DSK[128] = { 0, };
 
 	uint32_t PT1[8] = { 0, }; //CT: f2 03 4f d9 ae 18 f4 00
 	//uint32_t PT2[8] = { 0, };
@@ -71,7 +74,14 @@ int main()
 		SK[i] = (SK[i] << 16) + SK[i];
 	}
 
+	for (int i = 0; i < 128; i++)
+	{
+		DSK[i] = SK[127 - i];
+	}
+
 	Encryption_2block(CT1, CT2, WK, SK, PT1, PT2);
+	printETC(MK, PT1, PT2, CT1, CT2);
+	Decryption_2block(PT1, PT2, WK, DSK, CT1, CT2);
 	printETC(MK, PT1, PT2, CT1, CT2);
 
 	return 0;
