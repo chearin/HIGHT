@@ -119,12 +119,6 @@ int main()
 	printf("bbbbbbbbb");
 	Decryption_2block(PT1, PT2, WK, DSK, CT1, CT2);
 
-	//Decryption_2block 함수의 주석을 풀면 print가 안됨, Encryption_2block 후의 printETC도 안됨
-	//디버깅해보면 원래는 printETC를 실행하면서 출력들이 한 번에 나오는데
-	//밑에 Decryption_2block가 주석이 안되어 있으면 printETC가 안 돌아감
-	// 정리: Decryption_2block가 주석이 안되어 있으면 Encryption_2block이 끝나고 printf 관련은 모두 안 됨
-	//		주석만 되어있으면 Encryption_2block 끝나고 printf 잘 됨
-
 	printf("cccccccc");
 	printETC(MK, PT1, PT2, CT1, CT2);
 
