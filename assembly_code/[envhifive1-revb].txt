@@ -1,0 +1,15 @@
+[env:hifive1-revb]
+platform = sifive
+board = hifive1-revb
+framework = freedom-e-sdk
+build_unflags = -mcmodel=medlow
+build_flags = -mcmodel=medany -O3
+board_build.freedom-e-sdk.stack_size = 0x2700
+
+[env:release]
+platform = sifive
+board = hifive1-revb
+framework = freedom-e-sdk
+build_unflags = -mcmodel=medlow
+build_flags = -mcmodel=medany -O3
+board_build.freedom-e-sdk.stack_size = 0x2700
