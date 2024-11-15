@@ -108,18 +108,10 @@ int main()
 	{
 		DSK[i] = SK[127 - i];
 	}
-	printf("aaaaaaaaaa");
 	Encryption_2block(CT1, CT2, WK, SK, PT1, PT2);
-	//printETC(MK, PT1, PT2, CT1, CT2);
-	for(int i = 0;i<8;i++)
-	{
-		printf("%lx ", CT1[i]);
-	}
+	printETC(MK, PT1, PT2, CT1, CT2);
 	
-	printf("bbbbbbbbb");
 	Decryption_2block(PT1, PT2, WK, DSK, CT1, CT2);
-
-	printf("cccccccc");
 	printETC(MK, PT1, PT2, CT1, CT2);
 
 	return 0;

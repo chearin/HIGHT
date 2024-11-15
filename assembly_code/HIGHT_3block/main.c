@@ -127,10 +127,6 @@ int main()
 	Encryption_3block(CT1, CT2, CT3, WK, SK, PT1, PT2, PT3);
 	printETC(MK, PT1, PT2, PT3, CT1, CT2, CT3);
 
-	// uint32_t CT1[8] = { 0xf2, 0x03, 0x4f, 0xd9, 0xae, 0x18, 0xf4, 0x00 };
-	// uint32_t CT2[8] = { 0xf0, 0xdf, 0x54, 0xf0, 0x64, 0xe6, 0xdb, 0x63 };
-	// uint32_t CT3[8] = { 0x3c, 0x04, 0x2b, 0xcc, 0x9a, 0x84, 0x7c, 0x5b };
-	// printf("dds");
 	Decryption_3block(PT1, PT2, PT3, WK, DSK, CT1, CT2, CT3);
 	printETC(MK, PT1, PT2, PT3, CT1, CT2, CT3);
 
